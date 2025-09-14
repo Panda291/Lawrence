@@ -14,6 +14,8 @@ function CoopPlayer:Made()
     
     self.gameState = 0
     
+    self.type2flags = {}
+    
     self.skillpointCounters = {
         Player.offset.aridiaShipsKilled,
         Player.offset.eudoraShipsKilled,
@@ -31,6 +33,9 @@ function CoopPlayer:Made()
     for i = 2, 26 do
         self:MonitorAddress(Player.offset.gildedItems + i, 1)
     end
+
+    self.BoxBrokenLabel = Label:new("", 250, 390, 0xC0FFA888)
+    self:AddLabel(self.BoxBrokenLabel)
 end
 
 function CoopPlayer:Start()
@@ -346,5 +351,58 @@ end
 function CoopPlayer:OnDisconnect()
     if self.lobby ~= null then
         self.lobby:Leave(self)
+    end
+end
+
+function LevelFlagToBoxApLocation(level, index, value) 
+    return (level * 10000) + (index * 10) + value
+end
+
+function CoopPlayer:OnLevelFlagChanged(flag_type, level, size, index, value)
+    if flag_type == 2 then
+        --print(string.format("OnLevelFlagChanged: type: %s, level: %s, size: %s, index: %s, value: %s", tostring(flag_type), tostring(level), tostring(size), tostring(index), tostring(value)))
+        if self.type2flags[level] == nil then
+            self.type2flags[level] = {}
+        end
+        if self.type2flags[level][index] == nil then
+            self.type2flags[level][index] = 0
+        end
+        
+        local xor = self.type2flags[level][index] ~ value
+
+        if (xor & 1) ~= 0 then
+            print(string.format("Box broken(maybe?): %d", LevelFlagToBoxApLocation(level, index, 1)))
+            self.BoxBrokenLabel:SetText(string.format("%d", LevelFlagToBoxApLocation(level, index, 1)))
+        end
+        if (xor & 2) ~= 0 then
+            print(string.format("Box broken(maybe?): %d", LevelFlagToBoxApLocation(level, index, 2)))
+            self.BoxBrokenLabel:SetText(string.format("%d", LevelFlagToBoxApLocation(level, index, 2)))
+        end
+        if (xor & 4) ~= 0 then
+            print(string.format("Box broken(maybe?): %d", LevelFlagToBoxApLocation(level, index, 3)))
+            self.BoxBrokenLabel:SetText(string.format("%d", LevelFlagToBoxApLocation(level, index, 3)))
+        end
+        if (xor & 8) ~= 0 then
+            print(string.format("Box broken(maybe?): %d", LevelFlagToBoxApLocation(level, index, 4)))
+            self.BoxBrokenLabel:SetText(string.format("%d", LevelFlagToBoxApLocation(level, index, 4)))
+        end
+        if (xor & 16) ~= 0 then
+            print(string.format("Box broken(maybe?): %d", LevelFlagToBoxApLocation(level, index, 5)))
+            self.BoxBrokenLabel:SetText(string.format("%d", LevelFlagToBoxApLocation(level, index, 5)))
+        end
+        if (xor & 32) ~= 0 then
+            print(string.format("Box broken(maybe?): %d", LevelFlagToBoxApLocation(level, index, 6)))
+            self.BoxBrokenLabel:SetText(string.format("%d", LevelFlagToBoxApLocation(level, index, 6)))
+        end
+        if (xor & 64) ~= 0 then
+            print(string.format("Box broken(maybe?): %d", LevelFlagToBoxApLocation(level, index, 7)))
+            self.BoxBrokenLabel:SetText(string.format("%d", LevelFlagToBoxApLocation(level, index, 7)))
+        end
+        if (xor & 128) ~= 0 then
+            print(string.format("Box broken(maybe?): %d", LevelFlagToBoxApLocation(level, index, 8)))
+            self.BoxBrokenLabel:SetText(string.format("%d", LevelFlagToBoxApLocation(level, index, 8)))
+        end
+
+        self.type2flags[level][index] = self.type2flags[level][index] | value
     end
 end
